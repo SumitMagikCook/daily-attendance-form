@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Attendance</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .app-title {
+            color: #333;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .camera-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .camera-preview {
+            width: 100%;
+            max-width: 300px;
+            height: 200px;
+            background: #e9ecef;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px auto;
+            overflow: hidden;
+        }
+
+        .camera-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 8px;
+        }
+
+        .location-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .status-info {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .status-started {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .status-completed {
+            background: #bbdefb;
+            color: #1565c0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: 600;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .app-title {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Screen -->
+        <div id="loginScreen">
+            <div class="header">
+                <h1 class="app-title">Daily Attendance</h1>
+                <p class="subtitle">Please login to continue</p>
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+        </div>
+
+        <!-- Main Attendance Screen -->
+        <div id="attendanceScreen" class="hidden">
+            <div class="header">
+                <h1 class="app-title">Daily Attendance</h1>
+                <p class="subtitle">Welcome, <span id="welcomeUser"></span></p>
+            </div>
+
+            <!-- Status Display -->
+            <div id="statusDisplay"></div>
+
+            <!-- Action Selection -->
+            <div class="form-group">
+                <label for="actionType">Select Action Type:</label>
+                <select id="actionType" required>
+                    <option value="">Choose Action</option>
+                    <option value="start">Start Time</option>
+                    <option value="end">End Time</option>
+                </select>
+            </div>
+
+            <!-- Start Time Form -->
+            <div id="startTimeForm" class="hidden">
+                <div class="form-group">
+                    <label for="outletName">Outlet Name:</label>
+                    <input type="text" id="outletName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="outletLocation">Outlet Location:</label>
+                    <textarea id="outletLocation" rows="3" placeholder="Enter outlet address"></textarea>
+                </div>
+
+                <div class="camera-section">
+                    <h3>Take Your Selfie</h3>
+                    <div class="camera-preview" id="selfiePreview">
+                        <span>Click to take selfie</span>
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="takeSelfie('start')">Take Selfie</button>
+                </div>
+
+                <div class="camera-section">
+                    <h3>Take Outlet Picture</h3>
+                    <div class="camera-preview" id="outletPreview">
+                        <span>Click to take outlet picture</span>
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="takeOutletPicture()">Take Outlet Picture</button>
+                </div>
+
+                <button type="button" class="btn btn-success" onclick="submitStartTime()">Submit Start Time</button>
+            </div>
+
+            <!-- End Time Form -->
+            <div id="endTimeForm" class="hidden">
+                <div class="camera-section">
+                    <h3>Take Your End Selfie</h3>
+                    <div class="camera-preview" id="endSelfiePreview">
+                        <span>Click to take selfie</span>
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="takeSelfie('end')">Take End Selfie</button>
+                </div>
+
+                <button type="button" class="btn btn-danger" onclick="submitEndTime()">Submit End Time</button>
+            </div>
+
+            <div class="location-info" id="locationInfo">
+                <strong>Current Location:</strong>
+                <div id="currentLocation">Getting location...</div>
+            </div>
+
+            <button type="button" class="btn btn-primary" onclick="logout()" style="margin-top: 20px;">Logout</button>
+        </div>
+
+        <!-- Loading Screen -->
+        <div id="loadingScreen" class="hidden">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Processing...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden file inputs for camera -->
+    <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;">
+    
+    <script>
+        // Configuration - REPLACE WITH YOUR WEB APP URL
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyoBqq5oBcOMa2XDml2mmnd-trvlWwpYt_Fs4wUL65jtrpYdZhmrhgEoyng_iwSjxbo/exec';
+        
+        let currentUser = '';
+        let userLocation = null;
+        let startSelfie = null;
+        let outletPicture = null;
+        let endSelfie = null;
+        let attendanceStatus = null;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            // Set a default location for testing
+            userLocation = {
+                latitude: 22.5726,
+                longitude: 88.3639,
+                accuracy: 100
+            };
+            document.getElementById('currentLocation').innerHTML = '<span style="color: orange;">📍 Using default location (Kolkata) for testing</span>';
+            
+            // Try to get real location in background
+            getCurrentLocation();
+        });
+
+        function setupEventListeners() {
+            // Login form
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            
+            // Action type change
+            document.getElementById('actionType').addEventListener('change', handleActionChange);
+            
+            // Camera input change
+            document.getElementById('cameraInput').addEventListener('change', handleCameraCapture);
+        }
+
+        // Get current location
+        function getCurrentLocation() {
+            const locationDiv = document.getElementById('currentLocation');
+            
+            if (!navigator.geolocation) {
+                locationDiv.innerHTML = '<span style="color: red;">Geolocation not supported by this browser</span>';
+                return;
+            }
+            
+            locationDiv.textContent = 'Getting location...';
+            
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    userLocation = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        accuracy: position.coords.accuracy
+                    };
+                    
+                    const locationText = `Lat: ${userLocation.latitude.toFixed(6)}, Lng: ${userLocation.longitude.toFixed(6)} (±${Math.round(userLocation.accuracy)}m)`;
+                    locationDiv.innerHTML = `<span style="color: green;">📍 ${locationText}</span>`;
+                },
+                function(error) {
+                    console.error('Geolocation error:', error);
+                    let errorMessage = '';
+                    
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage = 'Location access denied by user. Please enable location access in browser settings.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage = 'Location information is unavailable.';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage = 'Location request timed out.';
+                            break;
+                        default:
+                            errorMessage = 'An unknown error occurred while retrieving location.';
+                            break;
+                    }
+                    
+                    locationDiv.innerHTML = `<span style="color: red;">⚠️ ${errorMessage}</span><br>
+                                            <button onclick="getCurrentLocation()" style="margin-top: 10px; padding: 5px 10px;">🔄 Retry Location</button>`;
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 15000,
+                    maximumAge: 60000
+                }
+            );
+        }
+
+        // Handle login
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            showLoading(true);
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'authenticate',
+                        username: username,
+                        password: password
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentUser = username;
+                    document.getElementById('welcomeUser').textContent = username;
+                    showScreen('attendanceScreen');
+                    checkAttendanceStatus();
+                } else {
+                    showAlert(result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showAlert('Network error. Please try again.', 'error');
+            }
+            
+            showLoading(false);
+        }
+
+        // Check attendance status
+        async function checkAttendanceStatus() {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'checkStatus',
+                        username: currentUser
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    attendanceStatus = result.data;
+                    updateStatusDisplay();
+                    updateActionOptions();
+                }
+            } catch (error) {
+                console.error('Status check error:', error);
+            }
+        }
+
+        // Update status display
+        function updateStatusDisplay() {
+            const statusDiv = document.getElementById('statusDisplay');
+            
+            if (!attendanceStatus.hasStarted) {
+                statusDiv.innerHTML = '<div class="alert alert-success">Ready to start attendance</div>';
+            } else if (attendanceStatus.hasStarted && !attendanceStatus.hasEnded) {
+                statusDiv.innerHTML = '<div class="status-info status-started">Attendance Started - Ready to End</div>';
+            } else {
+                statusDiv.innerHTML = '<div class="status-info status-completed">Attendance Completed for Today</div>';
+            }
+        }
+
+        // Update action options
+        function updateActionOptions() {
+            const actionSelect = document.getElementById('actionType');
+            const startOption = actionSelect.querySelector('option[value="start"]');
+            const endOption = actionSelect.querySelector('option[value="end"]');
+            
+            if (attendanceStatus.hasStarted) {
+                startOption.disabled = true;
+                startOption.textContent = 'Start Time (Already Started)';
+            }
+            
+            if (!attendanceStatus.hasStarted) {
+                endOption.disabled = true;
+                endOption.textContent = 'End Time (Start First)';
+            }
+            
+            if (attendanceStatus.hasEnded) {
+                startOption.disabled = true;
+                endOption.disabled = true;
+                actionSelect.disabled = true;
+            }
+        }
+
+        // Handle action change
+        function handleActionChange() {
+            const actionType = document.getElementById('actionType').value;
+            
+            // Hide all forms
+            document.getElementById('startTimeForm').classList.add('hidden');
+            document.getElementById('endTimeForm').classList.add('hidden');
+            
+            if (actionType === 'start' && !attendanceStatus.hasStarted) {
+                document.getElementById('startTimeForm').classList.remove('hidden');
+            } else if (actionType === 'end' && attendanceStatus.hasStarted && !attendanceStatus.hasEnded) {
+                document.getElementById('endTimeForm').classList.remove('hidden');
+            }
+        }
+
+        // Camera functions
+        let currentCameraTarget = null;
+
+        function takeSelfie(type) {
+            currentCameraTarget = type === 'start' ? 'selfie' : 'endSelfie';
+            document.getElementById('cameraInput').click();
+        }
+
+        function takeOutletPicture() {
+            currentCameraTarget = 'outlet';
+            document.getElementById('cameraInput').click();
+        }
+
+        function handleCameraCapture(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const base64Data = event.target.result;
+                
+                if (currentCameraTarget === 'selfie') {
+                    startSelfie = base64Data;
+                    document.getElementById('selfiePreview').innerHTML = `<img src="${base64Data}" alt="Selfie">`;
+                } else if (currentCameraTarget === 'outlet') {
+                    outletPicture = base64Data;
+                    document.getElementById('outletPreview').innerHTML = `<img src="${base64Data}" alt="Outlet">`;
+                } else if (currentCameraTarget === 'endSelfie') {
+                    endSelfie = base64Data;
+                    document.getElementById('endSelfiePreview').innerHTML = `<img src="${base64Data}" alt="End Selfie">`;
+                }
+            };
+            
+            reader.readAsDataURL(file);
+            
+            // Reset file input
+            e.target.value = '';
+        }
+
+        // Submit start time
+        async function submitStartTime() {
+            if (!startSelfie || !outletPicture) {
+                showAlert('Please take both selfie and outlet picture', 'error');
+                return;
+            }
+            
+            const outletName = document.getElementById('outletName').value;
+            const outletLocationText = document.getElementById('outletLocation').value;
+            
+            if (!outletName) {
+                showAlert('Please enter outlet name', 'error');
+                return;
+            }
+
+            // Use default location if real location not available
+            if (!userLocation) {
+                userLocation = { latitude: 22.5726, longitude: 88.3639, accuracy: 100 };
+                showAlert('Using default location for testing', 'success');
+            }
+            
+            showLoading(true);
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'startAttendance',
+                        username: currentUser,
+                        startLocation: `${userLocation.latitude}, ${userLocation.longitude}`,
+                        startSelfie: startSelfie,
+                        outletName: outletName,
+                        outletLocation: outletLocationText,
+                        outletPicture: outletPicture
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('Attendance started successfully!', 'success');
+                    checkAttendanceStatus();
+                    document.getElementById('actionType').value = '';
+                    handleActionChange();
+                } else {
+                    showAlert(result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Submit error:', error);
+                showAlert('Network error. Please try again.', 'error');
+            }
+            
+            showLoading(false);
+        }
+
+        // Submit end time
+        async function submitEndTime() {
+            if (!endSelfie) {
+                showAlert('Please take your end selfie', 'error');
+                return;
+            }
+            
+            // Use default location if real location not available
+            if (!userLocation) {
+                userLocation = { latitude: 22.5726, longitude: 88.3639, accuracy: 100 };
+                showAlert('Using default location for testing', 'success');
+            }
+            
+            showLoading(true);
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'endAttendance',
+                        username: currentUser,
+                        endLocation: `${userLocation.latitude}, ${userLocation.longitude}`,
+                        endSelfie: endSelfie
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert(`Attendance ended successfully! Duration: ${result.data.duration}`, 'success');
+                    checkAttendanceStatus();
+                    document.getElementById('actionType').value = '';
+                    handleActionChange();
+                } else {
+                    showAlert(result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Submit error:', error);
+                showAlert('Network error. Please try again.', 'error');
+            }
+            
+            showLoading(false);
+        }
+
+        // Utility functions
+        function showScreen(screenId) {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('attendanceScreen').classList.add('hidden');
+            document.getElementById('loadingScreen').classList.add('hidden');
+            
+            document.getElementById(screenId).classList.remove('hidden');
+        }
+
+        function showLoading(show) {
+            if (show) {
+                document.getElementById('loadingScreen').classList.remove('hidden');
+            } else {
+                document.getElementById('loadingScreen').classList.add('hidden');
+                // Show the appropriate screen based on login status
+                if (currentUser) {
+                    showScreen('attendanceScreen');
+                } else {
+                    showScreen('loginScreen');
+                }
+            }
+        }
+
+        function showAlert(message, type) {
+            // Remove existing alerts
+            const existingAlerts = document.querySelectorAll('.alert');
+            existingAlerts.forEach(alert => alert.remove());
+            
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            
+            const container = document.querySelector('.container');
+            container.appendChild(alertDiv);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        function logout() {
+            currentUser = '';
+            startSelfie = null;
+            outletPicture = null;
+            endSelfie = null;
+            attendanceStatus = null;
+            
+            // Reset forms
+            document.getElementById('loginForm').reset();
+            document.getElementById('outletName').value = '';
+            document.getElementById('outletLocation').value = '';
+            document.getElementById('actionType').value = '';
+            
+            // Clear previews
+            document.getElementById('selfiePreview').innerHTML = '<span>Click to take selfie</span>';
+            document.getElementById('outletPreview').innerHTML = '<span>Click to take outlet picture</span>';
+            document.getElementById('endSelfiePreview').innerHTML = '<span>Click to take selfie</span>';
+            
+            showScreen('loginScreen');
+        }
+    </script>
+</body>
+</html>
